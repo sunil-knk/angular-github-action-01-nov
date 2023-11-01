@@ -1,40 +1,42 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - angular-github-actions-appservice
-
+name: GitHub Pages
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+    - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
 
-      - name: npm install, build, and test
-        run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+    - name: Install dependencies
+      run: npm install
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+    - name: Run tests
+      run: npm run test:headless
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-app
-          path: release.zip
+    - name: Build
+      run: npm run build:prod
+    # - name: Copy Build Artifacts
+    #   run: |
+    #     # Create a dist/angular-github-actions directory if it doesn't exist
+    #     mkdir -p dist/angular-github-actions
+    #     # Copy the build artifacts to the dist/project-name directory
+    #     pwd
+    #     ls -ltr
+    #     rsync -av --exclude=dist/ ./ dist/project-name/
+    - name: Upload Build Artifacts for the deployment job
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts
+        path: dist/angular-github-actions
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,7 +49,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: node-app
+          name: angular-github-actions
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
