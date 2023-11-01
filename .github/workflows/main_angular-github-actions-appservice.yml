@@ -58,7 +58,7 @@ jobs:
         
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: unzip build-artifacts.zip
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
